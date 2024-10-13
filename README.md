@@ -14,10 +14,14 @@ Algorithms: N-Queens Backtracking algorithm
 
 Installation
 1.Clone the repository:
+
 git clone https://github.com/BismaQuisar/ASE_Group4.git
 
 2.Install dependencies:
+
 pip install -r requirements.txt
+
+
 pip install flask
 
 3.Run the Flask app:
