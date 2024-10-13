@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N-Queens Solver</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>N-Queens Completion Problem</h1>
+
+    <div>
+        <label for="board-size">Board Size (N): </label>
+        <input type="number" id="board-size" value="8" min="4" max="20">
+        <button onclick="generateBoard()">Generate Board</button>
+    </div>
+
+    <div id="board-container"></div>
+
+    <button onclick="solveBoard()">Solve</button>
+
+    <div id="solutions"></div>
+
+    <!-- Make sure the JavaScript file is loaded after the HTML content -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
