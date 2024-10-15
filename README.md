@@ -37,6 +37,6 @@ pip install flask
 
 flask run
 
-5.Access the application in your browser:
+4.Access the application in your browser:
 
 http://127.0.0.1:5000
