@@ -14,6 +14,11 @@ function generateBoard() {
         for (let j = 0; j < n; j++) {
             const square = document.createElement('div');
             square.classList.add('square');
+            if ((i + j) % 2 === 0) {
+                square.style.backgroundColor = '#f0d9b5'; // Light
+            } else {
+                square.style.backgroundColor = '#b58863'; // Dark
+            } 
             square.dataset.row = i;
             square.dataset.col = j;
             square.onclick = toggleQueen;
@@ -64,23 +69,33 @@ function displaySolutions(solutions) {
         container.innerHTML = '<p>No solutions found.</p>';
         return;
     }
-
     solutions.forEach((solution, index) => {
         const solutionBoard = document.createElement('div');
-        solutionBoard.innerHTML = `<h3>Solution ${index + 1}</h3>`;
-        solutionBoard.style.display = 'grid';
-        solutionBoard.style.gridTemplateColumns = `repeat(${n}, 50px)`;
+        const squaresRow = document.createElement('div');
+        solutionBoard.innerHTML = `<h3>Solution ${index + 1}:</h3>`;
+        squaresRow.style.display = 'grid';
+        squaresRow.style.gridTemplateColumns = `repeat(${n}, 50px)`;
         solutionBoard.style.marginBottom = '20px';
 
-        solution.forEach(row => {
-            row.split('').forEach(cell => {
+        solution.forEach((row, rowIndex)=> {
+            row.split('').forEach((cell, colIndex) => {
                 const square = document.createElement('div');
                 square.classList.add('square');
                 square.textContent = cell === 'Q' ? '♕' : '';
-                solutionBoard.appendChild(square);
+                if ((rowIndex + colIndex) % 2 === 0) {
+                    square.style.backgroundColor = '#f0d9b5'; // Light
+                } else {
+                    square.style.backgroundColor = '#b58863'; // Dark
+                } 
+                squaresRow.appendChild(square);
             });
         });
-
+         
+        solutionBoard.appendChild(squaresRow);
         container.appendChild(solutionBoard);
     });
 }
+
+window.onload = function() {
+    generateBoard();
+};
