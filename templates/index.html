@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circle Grid</title>
+    <!-- Update path to CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Polysphere Puzzle</h1>
+    <div class="puzzle">
+        <div class="row">
+            <div class="grid-container" id="circleGrid"></div>
+            <div class="previous_shape"></div></div>
+        <div class="shapes"></div>
+        
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
