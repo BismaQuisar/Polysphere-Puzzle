@@ -25,7 +25,6 @@ h1{
     box-shadow: 5px 5px 5px 5px rgb(212, 215, 216);
 }
 
-
 .circle {
     width: 40px;
     height: 40px;
@@ -33,7 +32,6 @@ h1{
     border: 2px solid #d3d3d3;
     background-color: white;
 }
-
 
 .shape_circle {
     width: 40px;
@@ -59,6 +57,7 @@ h1{
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     margin: 10px;
     position: relative;
+    min-height: 150px;
 }
 
 .previous_shape {
@@ -77,5 +76,18 @@ h1{
     grid-gap: 20px;
     margin: 12px;
     display: inline-block;
-   
+    cursor: grab;
+    transition: transform 0.2s;
+}
+
+.shape:hover {
+    transform: scale(1.05);
+}
+
+.dragging {
+    cursor: move;
+}
+
+.shape:active {
+    cursor: grabbing;
 }
