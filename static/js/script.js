@@ -148,18 +148,6 @@ shapes.forEach(shape => {
     container.appendChild(shapeElement);
 });
 
-function showTooltip(shapeId) {
-    tooltip.textContent = `Shape: ${shapeId}`;
-    tooltip.classList.add('active');
-}
-function moveTooltip(event) {
-    tooltip.style.left = event.pageX + 10 + 'px';
-    tooltip.style.top = event.pageY + 10 + 'px';
-}
-function hideTooltip() {
-    tooltip.classList.remove('active');
-}
-
 function createShape(id, color, pattern) {
     const shapeDiv = document.createElement('div');
     shapeDiv.classList.add('shape');
