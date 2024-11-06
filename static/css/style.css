@@ -63,9 +63,9 @@ h1{
     background-color: white;
     border-radius: 8px;
     box-shadow: 5px 5px 5px 5px rgb(212, 215, 216);
-    display: flex;
+    /* display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: center; */
     padding: 20px;
 }
 .shape {
@@ -88,4 +88,20 @@ h1{
 
 .shape:active {
     cursor: grabbing;
+}
+
+#lastUsedShapeDisplay {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    display: grid;
+    margin: 10px;
+    position: relative;
+}
+
+h2 {
+    font-weight: bold;
+    margin-top: 10px;
+    text-align: center;
+    padding-bottom: 20px;
 }
