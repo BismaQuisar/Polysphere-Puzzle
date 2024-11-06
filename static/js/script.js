@@ -8,33 +8,20 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const gridContainer = document.getElementById('circleGrid');
     const puzzleContainer = document.getElementById('puzzleContainer');
+    const startButton = document.getElementById('startButton');
+    const resetButton = document.getElementById('resetButton');
+
     gridContainer.addEventListener('dragover', dragOver);
     gridContainer.addEventListener('drop', dropInGrid);
     puzzleContainer.addEventListener('dragover', dragOver);
     puzzleContainer.addEventListener('drop', dropInPuzzle);
-    const rows = 5;
-    const cols = 11;
+    startButton.addEventListener('click', startGame);
+    resetButton.addEventListener('click', resetGame);
 
     // Create 5x11 grid of circles
-    for (let i = 0; i < rows * cols; i++) {
-        const circle = document.createElement('div');
-        circle.classList.add('circle');
-        gridContainer.appendChild(circle);
-
-        circle.addEventListener('mouseenter', function () {
-            const currentColor = circle.style.backgroundColor;
-            if (currentColor && currentColor !== 'transparent') {
-                const shape = findShapeByColor(currentColor);
-                if (shape) {
-                    showTooltip(shape.id, event);
-                }
-            }
-        });
-
-        circle.addEventListener('mouseleave', function () {
-            hideTooltip();
-        });
-    }
+    initializeGrid();
+    // Initialize the shapes in the puzzle container
+    initializeShapes();
 });
 
 // Shapes
@@ -141,12 +128,60 @@ const shapes = [
     }
 ];
 
-const container = document.getElementById('puzzleContainer');
+function initializeGrid() {
+    const gridContainer = document.getElementById('circleGrid');
+    const rows = 5;
+    const cols = 11;
 
-shapes.forEach(shape => {
-    const shapeElement = createShape(shape.id, shape.color, shape.pattern);
-    container.appendChild(shapeElement);
-});
+    for (let i = 0; i < rows * cols; i++) {
+        const circle = document.createElement('div');
+        circle.classList.add('circle');
+        gridContainer.appendChild(circle);
+
+        circle.addEventListener('mouseenter', (event) => {
+            const currentColor = circle.style.backgroundColor;
+            if (currentColor && currentColor !== 'transparent') {
+                const shape = findShapeByColor(currentColor);
+                if (shape) {
+                    showTooltip(shape.id, event);
+                }
+            }
+        });
+        circle.addEventListener('mouseleave', hideTooltip);
+    }
+}
+
+function initializeShapes() {
+    const puzzleContainer = document.getElementById('puzzleContainer');
+    puzzleContainer.innerHTML = ''; 
+
+    shapes.forEach(shape => {
+        const shapeElement = createShape(shape.id, shape.color, shape.pattern);
+        puzzleContainer.appendChild(shapeElement);
+    });
+}
+
+function startGame() {
+    resetGame();
+
+    // Assigning the shapes Random Position
+    const puzzleContainer = document.getElementById('puzzleContainer');
+    Array.from(puzzleContainer.children).forEach(shape => {
+        shape.style.order = Math.floor(Math.random() * puzzleContainer.children.length);
+    });
+}
+
+function resetGame() {
+    const gridContainer = document.getElementById('circleGrid');
+    const circles = Array.from(gridContainer.children);
+
+    circles.forEach(circle => {
+        circle.style.backgroundColor = '';
+    });
+
+    initializeShapes();
+    displayLastUsedShape(null);
+}
 
 function createShape(id, color, pattern) {
     const shapeDiv = document.createElement('div');
@@ -154,7 +189,7 @@ function createShape(id, color, pattern) {
     shapeDiv.id = id;
     shapeDiv.draggable = true;
 
-    shapeDiv.addEventListener('mouseenter', () => showTooltip(id));
+    shapeDiv.addEventListener('mouseenter', () => showTooltip(id, null));
     shapeDiv.addEventListener('mouseleave', hideTooltip);
 
     shapeDiv.addEventListener('dragstart', dragStart);
@@ -354,8 +389,12 @@ function hexToRgb(hex) {
 function displayLastUsedShape(shapeData) {
     const lastUsedShapeDisplay = document.getElementById('lastUsedShapeDisplay');
     lastUsedShapeDisplay.innerHTML = '';
-    const shapeElement = createShape(shapeData.id, shapeData.color, shapeData.pattern);
-    lastUsedShapeDisplay.appendChild(shapeElement); 
+    if (shapeData) {
+        const shapeElement = createShape(shapeData.id, shapeData.color, shapeData.pattern);
+        lastUsedShapeDisplay.appendChild(shapeElement);
+    } else {
+        lastUsedShapeDisplay.innerHTML = '';
+    }
 }
 
 function findShapeByColor(color) {
@@ -363,10 +402,12 @@ function findShapeByColor(color) {
 }
 
 function showTooltip(shapeId, event) {
+    if(event){
     tooltip.textContent = `Click on the Shape to remove it from the grid.`;
     tooltip.style.left = `${event.pageX + 10}px`;
     tooltip.style.top = `${event.pageY + 10}px`;
     tooltip.classList.add('active');
+    }
 }
 
 function hideTooltip() {
