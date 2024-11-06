@@ -1,6 +1,11 @@
 // JavaScript to create a 5x11 grid of circles
 let draggedShape = null;
+let tooltip = null;
 document.addEventListener('DOMContentLoaded', () => {
+    tooltip = document.createElement('div');
+    tooltip.classList.add('tooltip');
+    document.body.appendChild(tooltip);
+    
     const gridContainer = document.getElementById('circleGrid');
     const puzzleContainer = document.getElementById('puzzleContainer');
     gridContainer.addEventListener('dragover', dragOver);
@@ -15,6 +20,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const circle = document.createElement('div');
         circle.classList.add('circle');
         gridContainer.appendChild(circle);
+
+        circle.addEventListener('mouseenter', function () {
+            const currentColor = circle.style.backgroundColor;
+            if (currentColor && currentColor !== 'transparent') {
+                const shape = findShapeByColor(currentColor);
+                if (shape) {
+                    showTooltip(shape.id, event);
+                }
+            }
+        });
+
+        circle.addEventListener('mouseleave', function () {
+            hideTooltip();
+        });
     }
 });
 
@@ -135,6 +154,9 @@ function createShape(id, color, pattern) {
     shapeDiv.id = id;
     shapeDiv.draggable = true;
 
+    shapeDiv.addEventListener('mouseenter', () => showTooltip(id));
+    shapeDiv.addEventListener('mouseleave', hideTooltip);
+
     shapeDiv.addEventListener('dragstart', dragStart);
     shapeDiv.addEventListener('dragend', dragEnd);
     
@@ -159,8 +181,8 @@ function createShape(id, color, pattern) {
 
 function clearCellColors(circles, shapeData) {
     circles.forEach(circle => {
-        if(circle.style.backgroundColor == hexToRgb(shapeData.color)){
-        circle.style.backgroundColor = '';
+        if (circle.style.backgroundColor == hexToRgb(shapeData.color)) {
+            circle.style.backgroundColor = '';
         }
     });
 }
@@ -204,7 +226,7 @@ function dragOver(event) {
                     const targetIndex = targetRow * 11 + targetCol;
 
                     if (shapeData.pattern[r][c] === 1) {
-                        if (targetRow >= 5 || targetCol >= 11 || targetIndex >= circles.length || circles[targetIndex].style.backgroundColor !== '' ) {
+                        if (targetRow >= 5 || targetCol >= 11 || targetIndex >= circles.length || circles[targetIndex].style.backgroundColor !== '') {
                             canPlace = false;
                             break;
                         }
@@ -256,7 +278,7 @@ function dropInGrid(event) {
                         const targetIndex = targetRow * 11 + targetCol;
                         if (
                             targetRow >= 5 || targetCol >= 11 ||
-                            targetIndex >= circles.length || 
+                            targetIndex >= circles.length ||
                             ((circles[targetIndex].style.backgroundColor !== hexToRgb(shapeData.color)) &&
                             (circles[targetIndex].style.backgroundColor !== ''))) {
                             fits = false;
@@ -297,6 +319,29 @@ function dropInPuzzle(event) {
     }
 }
 
+function handlePieceClick(event) {
+    const clickedCell = event.target;
+    const gridContainer = document.getElementById('circleGrid');
+
+    if (clickedCell.style.backgroundColor) {
+        const shapeColor = clickedCell.style.backgroundColor;
+        const shapeData = shapes.find(shape => hexToRgb(shape.color) === shapeColor);
+        if (shapeData) {
+            const circles = Array.from(gridContainer.children);
+            circles.forEach(circle => {
+                if (circle.style.backgroundColor === shapeColor) {
+                    circle.style.backgroundColor = '';
+                }
+            });
+            const puzzleContainer = document.getElementById('puzzleContainer');
+            const shapeElement = createShape(shapeData.id, shapeData.color, shapeData.pattern);
+            puzzleContainer.appendChild(shapeElement);
+        }
+    }
+}
+
+document.getElementById('circleGrid').addEventListener('click', handlePieceClick);
+
 function hexToRgb(hex) {
     hex = hex.replace('#', '');
     const r = parseInt(hex.substring(0, 2), 16);
@@ -311,4 +356,19 @@ function displayLastUsedShape(shapeData) {
     lastUsedShapeDisplay.innerHTML = '';
     const shapeElement = createShape(shapeData.id, shapeData.color, shapeData.pattern);
     lastUsedShapeDisplay.appendChild(shapeElement); 
+}
+
+function findShapeByColor(color) {
+    return shapes.find(shape => hexToRgb(shape.color) === color);
+}
+
+function showTooltip(shapeId, event) {
+    tooltip.textContent = `Click on the Shape to remove it from the grid.`;
+    tooltip.style.left = `${event.pageX + 10}px`;
+    tooltip.style.top = `${event.pageY + 10}px`;
+    tooltip.classList.add('active');
+}
+
+function hideTooltip() {
+    tooltip.classList.remove('active');
 }
