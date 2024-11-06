@@ -276,6 +276,7 @@ function dropInGrid(event) {
                         }
                     }
                 }
+                displayLastUsedShape(shapeData);
                 draggedShape.remove();
                 //clearCellColors(circles);
                 draggedShape = null;
@@ -303,4 +304,11 @@ function hexToRgb(hex) {
     const b = parseInt(hex.substring(4, 6), 16);
 
     return `rgb(${r}, ${g}, ${b})`;
+}
+
+function displayLastUsedShape(shapeData) {
+    const lastUsedShapeDisplay = document.getElementById('lastUsedShapeDisplay');
+    lastUsedShapeDisplay.innerHTML = '';
+    const shapeElement = createShape(shapeData.id, shapeData.color, shapeData.pattern);
+    lastUsedShapeDisplay.appendChild(shapeElement); 
 }
