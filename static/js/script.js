@@ -1,9 +1,5 @@
 // JavaScript to create a 5x11 grid of circles
 let draggedShape = null;
-document.querySelectorAll('.shape').forEach(shape => {
-    shape.addEventListener('dragstart', dragStart);
-    shape.addEventListener('dragend', dragEnd);
-});
 document.addEventListener('DOMContentLoaded', () => {
     const gridContainer = document.getElementById('circleGrid');
     const puzzleContainer = document.getElementById('puzzleContainer');
@@ -14,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const rows = 5;
     const cols = 11;
 
+    // Create 5x11 grid of circles
     for (let i = 0; i < rows * cols; i++) {
         const circle = document.createElement('div');
         circle.classList.add('circle');
@@ -21,8 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// Shapes
 const shapes = [
     {
+        id: 'shape-1',
         color: '#ef4444',
         pattern: [
             [1, 1, 1],
@@ -30,6 +29,7 @@ const shapes = [
         ]
     },
     {
+        id: 'shape-2',
         color: '#ec4899',
         pattern: [
             [0, 0, 1, 1],
@@ -37,21 +37,24 @@ const shapes = [
         ]
     },
     {
+        id: 'shape-3',
         color: '#f9a8d4',
         pattern: [
-            [0, 1, 0],
-            [1, 1, 0],
+            [0, 1],
+            [1, 1],
             [0, 1, 1]
         ]
     },
     {
+        id: 'shape-4',
         color: '#60a5fa',
         pattern: [ 
-            [0, 1, 0],
+            [0, 1],
             [1, 1, 1]
         ]
     },
     {
+        id: 'shape-5',
         color: '#facc15',
         pattern: [
             [0, 1, 0, 0],
@@ -59,6 +62,7 @@ const shapes = [
         ]
     },
     {
+        id: 'shape-6',
         color: '#a855f7',
         pattern: [
             [0, 1, 1],
@@ -66,21 +70,24 @@ const shapes = [
         ]
     },
     {
+        id: 'shape-7',
         color: '#6b21a8',
         pattern: [
             [0, 1, 1],
-            [1, 1, 0]
+            [1, 1]
         ]
     },
     {
+        id: 'shape-8',
         color: '#6CC24A',
         pattern: [
             [1, 1],
-            [1, 0],
-            [1, 0]
+            [1],
+            [1]
         ]
     },
     {
+        id: 'shape-9',
         color: '#f97316',
         pattern: [
             [1, 1, 1],
@@ -89,6 +96,7 @@ const shapes = [
         ]
     },
     {
+        id: 'shape-10',
         color: '#22c55e',
         pattern: [
             [1, 0, 0, 0],
@@ -96,16 +104,18 @@ const shapes = [
         ]
     },
     {
+        id: 'shape-11',
         color: '#eab308',
         pattern: [
-            [1, 0],
+            [1],
             [1, 1]
         ]
     },
     {
+        id: 'shape-12',
         color: '#7EC8E3',
         pattern: [
-            [1, 1, 0],
+            [1, 1],
             [0, 1, 1],
             [0, 0, 1]
         ]
@@ -114,9 +124,15 @@ const shapes = [
 
 const container = document.getElementById('puzzleContainer');
 
-function createShape(color, pattern) {
+shapes.forEach(shape => {
+    const shapeElement = createShape(shape.id, shape.color, shape.pattern);
+    container.appendChild(shapeElement);
+});
+
+function createShape(id, color, pattern) {
     const shapeDiv = document.createElement('div');
     shapeDiv.classList.add('shape');
+    shapeDiv.id = id;
     shapeDiv.draggable = true;
 
     shapeDiv.addEventListener('dragstart', dragStart);
@@ -132,8 +148,6 @@ function createShape(color, pattern) {
 
             if (cell === 1) {
                 circleDiv.style.backgroundColor = color;
-            } else {
-                // Empty space (no color)
             }
             rowDiv.appendChild(circleDiv);
         });
@@ -142,15 +156,18 @@ function createShape(color, pattern) {
 
     return shapeDiv;
 }
-const circles = document.querySelectorAll('.circle');
-circles.forEach(circle => {
-    circle.addEventListener('dragover', dragOver);
-    circle.addEventListener('drop', drop);
-});
+
+function clearCellColors(circles, shapeData) {
+    circles.forEach(circle => {
+        if(circle.style.backgroundColor == hexToRgb(shapeData.color)){
+        circle.style.backgroundColor = '';
+        }
+    });
+}
 
 function dragStart(event) {
-    draggedShape = this;
-    this.style.opacity = '1';
+    draggedShape = event.target;
+    draggedShape.style.opacity = '1';
     event.dataTransfer.setData('text/plain', null);
 }
 
@@ -163,6 +180,53 @@ function dragEnd(event) {
 
 function dragOver(event) {
     event.preventDefault();
+    if (draggedShape) {
+        const gridContainer = document.getElementById('circleGrid');
+        const rect = gridContainer.getBoundingClientRect();
+        const mouseX = event.clientX - rect.left;
+        const mouseY = event.clientY - rect.top;
+
+        const col = Math.floor(mouseX / (rect.width / 11));
+        const row = Math.floor(mouseY / (rect.height / 5));
+
+        const shapeId = draggedShape.id;
+        const shapeData = shapes.find(shape => shape.id === shapeId);
+        const circles = Array.from(gridContainer.children);
+
+        if (shapeData) {
+            clearCellColors(circles, shapeData);
+
+            let canPlace = true;
+            for (let r = 0; r < shapeData.pattern.length; r++) {
+                for (let c = 0; c < shapeData.pattern[r].length; c++) {
+                    const targetRow = row + r;
+                    const targetCol = col + c;
+                    const targetIndex = targetRow * 11 + targetCol;
+
+                    if (shapeData.pattern[r][c] === 1) {
+                        if (targetRow >= 5 || targetCol >= 11 || targetIndex >= circles.length || circles[targetIndex].style.backgroundColor !== '' ) {
+                            canPlace = false;
+                            break;
+                        }
+                    }
+                }
+                if (!canPlace) break;
+            }
+
+            if (canPlace) {
+                for (let r = 0; r < shapeData.pattern.length; r++) {
+                    for (let c = 0; c < shapeData.pattern[r].length; c++) {
+                        if (shapeData.pattern[r][c] === 1) {
+                            const targetRow = row + r;
+                            const targetCol = col + c;
+                            const targetIndex = targetRow * 11 + targetCol;
+                            circles[targetIndex].style.backgroundColor = shapeData.color;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 function dropInGrid(event) {
@@ -170,36 +234,73 @@ function dropInGrid(event) {
 
     if (draggedShape) {
         const gridContainer = document.getElementById('circleGrid');
-        const availableCircles = Array.from(gridContainer.querySelectorAll('.circle:not(:has(.shape))'));
+        const circles = Array.from(gridContainer.children);
 
-        if (availableCircles.length > 0) {
-            availableCircles[availableCircles.length - 1].appendChild(draggedShape);
-        } else {
-            console.log("No available spaces in the grid.");
+        const rect = gridContainer.getBoundingClientRect();
+        const mouseX = event.clientX - rect.left;
+        const mouseY = event.clientY - rect.top;
+
+        const col = Math.floor(mouseX / (rect.width / 11));
+        const row = Math.floor(mouseY / (rect.height / 5));
+
+        const shapeId = draggedShape.id;
+        const shapeData = shapes.find(shape => shape.id === shapeId);
+
+        if (shapeData) {
+            let fits = true;
+            for (let r = 0; r < shapeData.pattern.length; r++) {
+                for (let c = 0; c < shapeData.pattern[r].length; c++) {
+                    if (shapeData.pattern[r][c] === 1) {
+                        const targetRow = row + r;
+                        const targetCol = col + c;
+                        const targetIndex = targetRow * 11 + targetCol;
+                        if (
+                            targetRow >= 5 || targetCol >= 11 ||
+                            targetIndex >= circles.length || 
+                            ((circles[targetIndex].style.backgroundColor !== hexToRgb(shapeData.color)) &&
+                            (circles[targetIndex].style.backgroundColor !== ''))) {
+                            fits = false;
+                            break;
+                        }
+                    }
+                }
+                if (!fits) break;
+            }
+
+            if (fits) {
+                for (let r = 0; r < shapeData.pattern.length; r++) {
+                    for (let c = 0; c < shapeData.pattern[r].length; c++) {
+                        if (shapeData.pattern[r][c] === 1) {
+                            const targetIndex = (row + r) * 11 + (col + c);
+                            circles[targetIndex].style.backgroundColor = shapeData.color;
+                        }
+                    }
+                }
+                draggedShape.remove();
+                //clearCellColors(circles);
+                draggedShape = null;
+            } else {
+                console.log('Shape does not fit in this position!');
+            }
         }
-
-        draggedShape.style.opacity = '1'; // Reset opacity
-        draggedShape = null;
     }
 }
 
 function dropInPuzzle(event) {
     event.preventDefault();
-
     if (draggedShape) {
+        const puzzleContainer = document.getElementById('puzzleContainer');
         puzzleContainer.appendChild(draggedShape);
-        draggedShape.style.opacity = '1'; 
+        draggedShape.style.opacity = '1';
         draggedShape = null;
     }
 }
-shapes.forEach(shape => {
-    const shapeElement = createShape(shape.color, shape.pattern);
-    container.appendChild(shapeElement);
-});
 
-document.addEventListener('mousemove', function(event) {
-    if (draggedShape) {
-        draggedShape.style.left = event.clientX - (draggedShape.offsetWidth / 2) + 'px';
-        draggedShape.style.top = event.clientY - (draggedShape.offsetHeight / 2) + 'px';
-    }
-});
+function hexToRgb(hex) {
+    hex = hex.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+
+    return `rgb(${r}, ${g}, ${b})`;
+}
