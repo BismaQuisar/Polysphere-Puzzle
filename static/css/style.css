@@ -122,3 +122,44 @@ h2 {
     visibility: visible;
     opacity: 1;
 }
+
+.controls {
+    width: 100%;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 5px 5px 5px 5px rgb(212, 215, 216);
+    margin-bottom: 10px;
+    position: relative;
+    min-height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    gap: 10px;     
+}
+
+.controls button {
+    color: #ffffff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    box-shadow: 3px 3px 3px 3px rgb(212, 215, 216);
+    transition: background-color 0.3s;
+}
+
+#startButton{
+    background-color: #22c55e;
+}
+
+#startButton:hover {
+    background-color: #16a34a;
+}
+
+#resetButton {
+    background-color: #f97316;
+}
+
+#resetButton:hover {
+    background-color: #ea580c;
+}
