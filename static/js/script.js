@@ -278,7 +278,6 @@ function renderShapePattern(shapeDiv, shape) {
 }
 
 function toggleFlip(shapeElement) {
-    console.log("toggleFlip");
     const shapeData = shapes.find(shape => shape.id === shapeElement.id);
 
     if (shapeData.flippedHorizontally) {
@@ -448,12 +447,10 @@ function dropInGrid(event) {
             }
 
             if (fits) {
-                console.log(transformedPattern);
                 for (let r = 0; r < transformedPattern.length; r++) {
                     for (let c = 0; c < transformedPattern[r].length; c++) {
                         if (transformedPattern[r][c] === 1) {
                             const targetIndex = (row + r) * 11 + (col + c);
-                            console.log(targetIndex);
                             circles[targetIndex].style.backgroundColor = shapeData.color;
                         }
                     }
