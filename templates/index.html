@@ -16,10 +16,19 @@
                     <div id="lastUsedShapeDisplay"></div>
                 </div>
             </div>
-        <div class="puzzle-pieces" id="puzzleContainer"></div>
-        <div class="controls">
-            <button id="startButton">Start</button>
-            <button id="resetButton">Reset</button>
+            <div id="gameEndOverlay" class="game-end-overlay" style="display: none;">
+                <div class="game-end-message">
+                    <button class="close-button" onclick="closeGameEndOverlay()">X</button>
+                    <h2>Game Over</h2>
+                    <p>Congratulations! You've completed the puzzle!</p>
+                    <button id="New_Game" onclick="closeGameEndOverlay()">Replay</button>
+                </div>
+            </div>
+            <div class="puzzle-pieces" id="puzzleContainer"></div>
+            <div class="controls">
+                <button id="startButton">Start</button>
+                <button id="resetButton">Reset</button>
+            </div>
         </div>
         
     </div>

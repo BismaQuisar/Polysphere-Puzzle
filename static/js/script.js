@@ -204,6 +204,7 @@ function startGame() {
 
     // Assigning the shapes Random Position
     const puzzleContainer = document.getElementById('puzzleContainer');
+    initializeShapes()
     Array.from(puzzleContainer.children).forEach(shape => {
         shape.style.order = Math.floor(Math.random() * puzzleContainer.children.length);
     });
@@ -457,8 +458,8 @@ function dropInGrid(event) {
                 }
                 displayLastUsedShape(shapeData);
                 draggedShape.remove();
-                //clearCellColors(circles);
                 draggedShape = null;
+                checkGameEnd();
             } else {
                 console.log('Shape does not fit in this position!');
             }
@@ -470,22 +471,21 @@ function dropInPuzzle(event) {
     event.preventDefault();
     if (draggedShape) {
         const puzzleContainer = document.getElementById('puzzleContainer');
-
-        if (!isDuplicateColor(draggedShape.style.backgroundColor)){
+        if (!isDuplicateID(draggedShape.id)){
             puzzleContainer.appendChild(draggedShape);
             draggedShape.style.opacity = '1';
         }
-        
+
         draggedShape = null;
     }
 }
 
-function isDuplicateColor(color) {
+function isDuplicateID(ID) {
     const puzzleContainer = document.getElementById('puzzleContainer');
     const existingShapes = Array.from(puzzleContainer.children);
 
     for (const shape of existingShapes) {
-        if (shape.style.backgroundColor === color) {
+        if (shape.id === ID) {
             return true;
         }
     }
@@ -509,7 +509,7 @@ function handlePieceClick(event) {
             const puzzleContainer = document.getElementById('puzzleContainer');
             const shapeElement = createShape(shapeData);
             
-            if (!isDuplicateColor(shapeElement.style.backgroundColor)){
+            if (!isDuplicateID(shapeElement.id)){
                 puzzleContainer.appendChild(shapeElement);
             }
         }
@@ -558,4 +558,23 @@ function showTooltip(event, containerInfo) {
 
 function hideTooltip() {
     tooltip.classList.remove('active');
+}
+
+function checkGameEnd() {
+    const gridCells = document.querySelectorAll('.circle');
+
+    const allCellsFilled = Array.from(gridCells).every(cell => {
+        return cell.style.backgroundColor !== '';
+    });
+
+    if (allCellsFilled) {
+        const gameEndOverlay = document.getElementById('gameEndOverlay');
+        gameEndOverlay.style.display = 'flex';
+    }
+}
+
+function closeGameEndOverlay() {
+    const gameEndOverlay = document.getElementById('gameEndOverlay');
+    gameEndOverlay.style.display = 'none';
+    startGame();
 }

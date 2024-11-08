@@ -53,7 +53,7 @@ h1{
     justify-content: center;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    margin: 10px;
+    margin-bottom: 15px;
     position: relative;
     min-height: 150px;
 }
@@ -63,9 +63,6 @@ h1{
     background-color: white;
     border-radius: 8px;
     box-shadow: 5px 5px 5px 5px rgb(212, 215, 216);
-    /* display: flex;
-    justify-content: center;
-    align-items: center; */
     padding: 20px;
 }
 .shape {
@@ -162,4 +159,66 @@ h2 {
 
 #resetButton:hover {
     background-color: #ea580c;
+}
+
+.game-end-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.game-end-message {
+    text-align: center;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+
+#New_Game{
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    color: white;
+    transition: background-color 0.3s;
+    background-color: #22c55e;
+}
+
+#New_Game:hover {
+    background-color: #1f7740;
+}
+
+.game-end-message h2 {
+    margin: 0;
+    font-size: 2em;
+}
+
+.game-end-message p {
+    font-size: 1.2em;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+}
+
+.close-button:hover {
+    color: #ff4444;
 }
