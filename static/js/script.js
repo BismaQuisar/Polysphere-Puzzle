@@ -1,6 +1,7 @@
 // JavaScript to create a 5x11 grid of circles
 let draggedShape = null;
 let tooltip = null;
+let clickTimeout = null;
 document.addEventListener('DOMContentLoaded', () => {
     tooltip = document.createElement('div');
     tooltip.classList.add('tooltip');
@@ -29,6 +30,9 @@ const shapes = [
     {
         id: 'shape-1',
         color: '#ef4444',
+        angle: 0,
+        flippedHorizontally: false,
+        flippedVertically: false,
         pattern: [
             [1, 1, 1],
             [1, 0, 1]
@@ -37,6 +41,9 @@ const shapes = [
     {
         id: 'shape-2',
         color: '#ec4899',
+        angle: 0,
+        flippedHorizontally: false,
+        flippedVertically: false,
         pattern: [
             [0, 0, 1, 1],
             [1, 1, 1, 0]
@@ -45,23 +52,32 @@ const shapes = [
     {
         id: 'shape-3',
         color: '#f9a8d4',
+        angle: 0,
+        flippedHorizontally: false,
+        flippedVertically: false,
         pattern: [
-            [0, 1],
-            [1, 1],
+            [0, 1, 0],
+            [1, 1, 0],
             [0, 1, 1]
         ]
     },
     {
         id: 'shape-4',
         color: '#60a5fa',
+        angle: 0,
+        flippedHorizontally: false,
+        flippedVertically: false,
         pattern: [ 
-            [0, 1],
+            [0, 1, 0],
             [1, 1, 1]
         ]
     },
     {
         id: 'shape-5',
         color: '#facc15',
+        angle: 0,
+        flippedHorizontally: false,
+        flippedVertically: false,
         pattern: [
             [0, 1, 0, 0],
             [1, 1, 1, 1]
@@ -70,6 +86,9 @@ const shapes = [
     {
         id: 'shape-6',
         color: '#a855f7',
+        angle: 0,
+        flippedHorizontally: false,
+        flippedVertically: false,
         pattern: [
             [0, 1, 1],
             [1, 1, 1]
@@ -78,23 +97,32 @@ const shapes = [
     {
         id: 'shape-7',
         color: '#6b21a8',
+        angle: 0,
+        flippedHorizontally: false,
+        flippedVertically: false,
         pattern: [
             [0, 1, 1],
-            [1, 1]
+            [1, 1, 0]
         ]
     },
     {
         id: 'shape-8',
         color: '#6CC24A',
+        angle: 0,
+        flippedHorizontally: false,
+        flippedVertically: false,
         pattern: [
             [1, 1],
-            [1],
-            [1]
+            [1, 0],
+            [1, 0]
         ]
     },
     {
         id: 'shape-9',
         color: '#f97316',
+        angle: 0,
+        flippedHorizontally: false,
+        flippedVertically: false,
         pattern: [
             [1, 1, 1],
             [0, 0, 1],
@@ -104,6 +132,9 @@ const shapes = [
     {
         id: 'shape-10',
         color: '#22c55e',
+        angle: 0,
+        flippedHorizontally: false,
+        flippedVertically: false,
         pattern: [
             [1, 0, 0, 0],
             [1, 1, 1, 1]
@@ -112,16 +143,22 @@ const shapes = [
     {
         id: 'shape-11',
         color: '#eab308',
+        angle: 0,
+        flippedHorizontally: false,
+        flippedVertically: false,
         pattern: [
-            [1],
+            [1, 0],
             [1, 1]
         ]
     },
     {
         id: 'shape-12',
         color: '#7EC8E3',
+        angle: 0,
+        flippedHorizontally: false,
+        flippedVertically: false,
         pattern: [
-            [1, 1],
+            [1, 1, 0],
             [0, 1, 1],
             [0, 0, 1]
         ]
@@ -143,7 +180,7 @@ function initializeGrid() {
             if (currentColor && currentColor !== 'transparent') {
                 const shape = findShapeByColor(currentColor);
                 if (shape) {
-                    showTooltip(shape.id, event);
+                    showTooltip(event, "circleGrid");
                 }
             }
         });
@@ -156,7 +193,8 @@ function initializeShapes() {
     puzzleContainer.innerHTML = ''; 
 
     shapes.forEach(shape => {
-        const shapeElement = createShape(shape.id, shape.color, shape.pattern);
+        const shapeElement = createShape(shape);
+        showTooltip(shapeElement.id, 'Puzzle')
         puzzleContainer.appendChild(shapeElement);
     });
 }
@@ -183,40 +221,123 @@ function resetGame() {
     displayLastUsedShape(null);
 }
 
-function createShape(id, color, pattern) {
+function createShape(shape) {
     const shapeDiv = document.createElement('div');
     shapeDiv.classList.add('shape');
-    shapeDiv.id = id;
+    shapeDiv.id = shape.id;
     shapeDiv.draggable = true;
 
-    shapeDiv.addEventListener('mouseenter', () => showTooltip(id, null));
+    shapeDiv.addEventListener('click',(event)=>{
+        event.preventDefault();
+
+        if (clickTimeout) {
+            clearTimeout(clickTimeout);
+
+            toggleFlip(shapeDiv, shape);
+            renderShapePattern(shapeDiv, shape);
+
+            clickTimeout = null;
+        } else {
+            clickTimeout = setTimeout(() => {
+                rotateShape(shape);
+                renderShapePattern(shapeDiv, shape);
+                clickTimeout = null;
+            }, 300);
+        }
+    });
+
+    shapeDiv.addEventListener('mouseenter', (event) => showTooltip(event, null));
     shapeDiv.addEventListener('mouseleave', hideTooltip);
 
     shapeDiv.addEventListener('dragstart', dragStart);
     shapeDiv.addEventListener('dragend', dragEnd);
+
+    renderShapePattern(shapeDiv, shape);
+
+    return shapeDiv;
+}
+
+function renderShapePattern(shapeDiv, shape) {
+    shapeDiv.innerHTML = '';
     
-    pattern.forEach(row => {
+    const transformedPattern = getTransformedPattern(shape);
+    transformedPattern.forEach(row => {
         const rowDiv = document.createElement('div');
         rowDiv.style.display = 'flex';
 
         row.forEach(cell => {
             const circleDiv = document.createElement('div');
             circleDiv.classList.add('shape_circle');
-
             if (cell === 1) {
-                circleDiv.style.backgroundColor = color;
+                circleDiv.style.backgroundColor = shape.color;
             }
             rowDiv.appendChild(circleDiv);
         });
         shapeDiv.appendChild(rowDiv);
     });
-
-    return shapeDiv;
 }
 
-function clearCellColors(circles, shapeData) {
+function toggleFlip(shapeElement) {
+    console.log("toggleFlip");
+    const shapeData = shapes.find(shape => shape.id === shapeElement.id);
+
+    if (shapeData.flippedHorizontally) {
+        flipShape(shapeElement, 'vertical');
+    } else {
+        flipShape(shapeElement, 'horizontal');
+    }
+}
+
+function rotateShape(shape) {
+    shape.angle = (shape.angle + 90) % 360; // Rotate by 90 degrees
+}
+
+function flipShape(shapeElement, direction) {
+    const shapeData = shapes.find(shape => shape.id === shapeElement.id);
+
+    if (direction === 'horizontal') {
+        shapeData.flippedHorizontally = !shapeData.flippedHorizontally;
+        shapeData.pattern = flipPatternHorizontally(shapeData.pattern);
+    } else if (direction === 'vertical') {
+        shapeData.flippedVertically = !shapeData.flippedVertically;
+        shapeData.pattern = flipPatternVertically(shapeData.pattern);
+    }
+}
+
+function flipPatternHorizontally(pattern) {
+    return pattern.map(row => row.reverse());
+}
+
+function flipPatternVertically(pattern) {
+    return pattern.reverse();
+}
+
+function getTransformedPattern(shape) {
+    let pattern = shape.pattern;
+
+    for (let i = 0; i < shape.angle / 90; i++) {
+        pattern = rotatePatternClockwise(pattern);
+    }
+
+    return pattern;
+}
+
+function rotatePatternClockwise(pattern) {
+    const rows = pattern.length;
+    const cols = pattern[0].length;
+    const rotatedPattern = Array.from({ length: cols }, () => Array(rows).fill(0));
+
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            rotatedPattern[c][rows - r - 1] = pattern[r][c];
+        }
+    }
+    return rotatedPattern;
+}
+
+function clearCellColors(circles, color) {
     circles.forEach(circle => {
-        if (circle.style.backgroundColor == hexToRgb(shapeData.color)) {
+        if (circle.style.backgroundColor == hexToRgb(color)) {
             circle.style.backgroundColor = '';
         }
     });
@@ -251,16 +372,17 @@ function dragOver(event) {
         const circles = Array.from(gridContainer.children);
 
         if (shapeData) {
-            clearCellColors(circles, shapeData);
+            clearCellColors(circles, shapeData.color);
+            const transformedPattern = getTransformedPattern(shapeData);
 
             let canPlace = true;
-            for (let r = 0; r < shapeData.pattern.length; r++) {
-                for (let c = 0; c < shapeData.pattern[r].length; c++) {
+            for (let r = 0; r < transformedPattern.length; r++) {
+                for (let c = 0; c < transformedPattern[r].length; c++) {
                     const targetRow = row + r;
                     const targetCol = col + c;
                     const targetIndex = targetRow * 11 + targetCol;
 
-                    if (shapeData.pattern[r][c] === 1) {
+                    if (transformedPattern[r][c] === 1) {
                         if (targetRow >= 5 || targetCol >= 11 || targetIndex >= circles.length || circles[targetIndex].style.backgroundColor !== '') {
                             canPlace = false;
                             break;
@@ -271,9 +393,9 @@ function dragOver(event) {
             }
 
             if (canPlace) {
-                for (let r = 0; r < shapeData.pattern.length; r++) {
-                    for (let c = 0; c < shapeData.pattern[r].length; c++) {
-                        if (shapeData.pattern[r][c] === 1) {
+                for (let r = 0; r < transformedPattern.length; r++) {
+                    for (let c = 0; c < transformedPattern[r].length; c++) {
+                        if (transformedPattern[r][c] === 1) {
                             const targetRow = row + r;
                             const targetCol = col + c;
                             const targetIndex = targetRow * 11 + targetCol;
@@ -305,9 +427,10 @@ function dropInGrid(event) {
 
         if (shapeData) {
             let fits = true;
-            for (let r = 0; r < shapeData.pattern.length; r++) {
-                for (let c = 0; c < shapeData.pattern[r].length; c++) {
-                    if (shapeData.pattern[r][c] === 1) {
+            const transformedPattern = getTransformedPattern(shapeData);
+            for (let r = 0; r < transformedPattern.length; r++) {
+                for (let c = 0; c < transformedPattern[r].length; c++) {
+                    if (transformedPattern[r][c] === 1) {
                         const targetRow = row + r;
                         const targetCol = col + c;
                         const targetIndex = targetRow * 11 + targetCol;
@@ -325,10 +448,12 @@ function dropInGrid(event) {
             }
 
             if (fits) {
-                for (let r = 0; r < shapeData.pattern.length; r++) {
-                    for (let c = 0; c < shapeData.pattern[r].length; c++) {
-                        if (shapeData.pattern[r][c] === 1) {
+                console.log(transformedPattern);
+                for (let r = 0; r < transformedPattern.length; r++) {
+                    for (let c = 0; c < transformedPattern[r].length; c++) {
+                        if (transformedPattern[r][c] === 1) {
                             const targetIndex = (row + r) * 11 + (col + c);
+                            console.log(targetIndex);
                             circles[targetIndex].style.backgroundColor = shapeData.color;
                         }
                     }
@@ -348,10 +473,26 @@ function dropInPuzzle(event) {
     event.preventDefault();
     if (draggedShape) {
         const puzzleContainer = document.getElementById('puzzleContainer');
-        puzzleContainer.appendChild(draggedShape);
-        draggedShape.style.opacity = '1';
+
+        if (!isDuplicateColor(draggedShape.style.backgroundColor)){
+            puzzleContainer.appendChild(draggedShape);
+            draggedShape.style.opacity = '1';
+        }
+        
         draggedShape = null;
     }
+}
+
+function isDuplicateColor(color) {
+    const puzzleContainer = document.getElementById('puzzleContainer');
+    const existingShapes = Array.from(puzzleContainer.children);
+
+    for (const shape of existingShapes) {
+        if (shape.style.backgroundColor === color) {
+            return true;
+        }
+    }
+    return false;
 }
 
 function handlePieceClick(event) {
@@ -369,8 +510,11 @@ function handlePieceClick(event) {
                 }
             });
             const puzzleContainer = document.getElementById('puzzleContainer');
-            const shapeElement = createShape(shapeData.id, shapeData.color, shapeData.pattern);
-            puzzleContainer.appendChild(shapeElement);
+            const shapeElement = createShape(shapeData);
+            
+            if (!isDuplicateColor(shapeElement.style.backgroundColor)){
+                puzzleContainer.appendChild(shapeElement);
+            }
         }
     }
 }
@@ -390,7 +534,7 @@ function displayLastUsedShape(shapeData) {
     const lastUsedShapeDisplay = document.getElementById('lastUsedShapeDisplay');
     lastUsedShapeDisplay.innerHTML = '';
     if (shapeData) {
-        const shapeElement = createShape(shapeData.id, shapeData.color, shapeData.pattern);
+        const shapeElement = createShape(shapeData);
         lastUsedShapeDisplay.appendChild(shapeElement);
     } else {
         lastUsedShapeDisplay.innerHTML = '';
@@ -401,12 +545,17 @@ function findShapeByColor(color) {
     return shapes.find(shape => hexToRgb(shape.color) === color);
 }
 
-function showTooltip(shapeId, event) {
+function showTooltip(event, containerInfo) {
     if(event){
-    tooltip.textContent = `Click on the Shape to remove it from the grid.`;
-    tooltip.style.left = `${event.pageX + 10}px`;
-    tooltip.style.top = `${event.pageY + 10}px`;
-    tooltip.classList.add('active');
+        if (containerInfo === "circleGrid"){
+            tooltip.textContent = `Click on the shape to remove it from the grid.`;
+        }
+        else{
+            tooltip.textContent = `Click on the Shape to Rotate and Double Click to Flip`;
+        }
+        tooltip.style.left = `${event.pageX + 10}px`;
+        tooltip.style.top = `${event.pageY + 10}px`;
+        tooltip.classList.add('active');
     }
 }
 
