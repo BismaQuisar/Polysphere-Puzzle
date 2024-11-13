@@ -8,9 +8,15 @@
 </head>
 <body>
     <h1>Polysphere Puzzle</h1>
-    <div class="puzzle">
-        <div class="row">
-            <div class="grid-container" id="circleGrid"></div>
+    <div class="container">
+        <div class="controls">
+            <button id="startButton">Start</button>
+            <button id="resetButton">Reset</button>
+        </div>
+        
+        <div class="puzzle">
+            <div class="row">
+                <div class="grid-container" id="circleGrid"></div>
                 <div id="lastUsedContainer" class="previous_shape">
                     <h2>Previous Shape</h2>
                     <div id="lastUsedShapeDisplay"></div>
@@ -25,10 +31,6 @@
                 </div>
             </div>
             <div class="puzzle-pieces" id="puzzleContainer"></div>
-            <div class="controls">
-                <button id="startButton">Start</button>
-                <button id="resetButton">Reset</button>
-            </div>
         </div>
         
     </div>
