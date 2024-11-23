@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polysphere Puzzle</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/polysphere.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>Polysphere Puzzle</h1>
+    </header>
+    <main>
+        <div class="pieces">
+            <div class="puzzle-pieces" id="puzzleContainer"></div>
+        </div>
+        <div class="container">
+            <aside class="controls">
+                <button id="homeButton" onclick="location.href=`{{ url_for('home') }}`">Home</button>
+                <button id="startButton">Start</button>
+                <button id="resetButton">Reset</button>
+                <button id="solveButton">Solve</button>
+                <button id="instructionsButton" onclick="openInstructions()">How It Works</button>
+            </aside>
+            <section class="puzzle">
+                <div class="row">
+                    <div class="grid-container" id="circleGrid"></div>
+                    <div id="lastUsedContainer" class="previous_shape">
+                        <h2>Previous Shape</h2>
+                        <div id="lastUsedShapeDisplay"></div>
+                    </div>
+                </div>
+                <div id="gameEndOverlay" class="game-end-overlay" style="display: none;">
+                    <div class="game-end-message">
+                        <button class="close-button" onclick="closeGameEndOverlay()">X</button>
+                        <h2>Game Over</h2>
+                        <p>Congratulations! You've completed the puzzle!</p>
+                        <button id="New_Game" class="buttons" onclick="closeGameEndOverlay()">Replay</button>
+                        <button id="homeButton" class="buttons" onclick="location.href=`{{ url_for('home') }}`">Home</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+    <div id="instructionsModal" style="display: none;">
+        <div class="modal-content">
+            <button class="close-button" onclick="closeInstructions()">x</button>
+            <h1>How to Play Polysphere Puzzle</h1>
+            <div class="instructions">
+                <h2>Instructions</h2>
+                <ul>
+                    <li><span class="highlight">Drag a piece</span> to place it on the <span class="highlight">gaming board</span>. Position the piece carefully to fit into the board’s slots.</li>
+                    <li><span class="highlight">Click on a shape</span> to rotate it by 90 degrees. Keep clicking until the piece is oriented correctly.</li>
+                    <li><span class="highlight">Double-click</span> on a shape to flip it:
+                        <ul>
+                            <li><span class="highlight">Horizontal Flip</span>: Double-click once to flip the piece horizontally.</li>
+                            <li><span class="highlight">Vertical Flip</span>: Double-click again to flip it vertically.</li>
+                        </ul>
+                    </li>
+                    <li>To <span class="highlight">remove a piece</span> from the gaming board, simply click on it. The piece will return to the starting area for repositioning.</li>
+                    <li>Click the <span class="highlight">Solve Button</span> to see all possible solutions based on your current setup. This feature will guide you by showing the different ways to complete the puzzle.</li>
+                </ul>
+                <h2>Winning the Game</h2>
+                <p>
+                    Complete the arrangement of all puzzle pieces on the gaming board to form the final image. A congratulatory message will appear to celebrate your success!
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/polysphere.js') }}"></script>
+</body>
+</html>

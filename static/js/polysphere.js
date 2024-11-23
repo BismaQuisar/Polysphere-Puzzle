@@ -1,12 +1,7 @@
 // JavaScript to create a 5x11 grid of circles
 let draggedShape = null;
-let tooltip = null;
 let clickTimeout = null;
 document.addEventListener('DOMContentLoaded', () => {
-    tooltip = document.createElement('div');
-    tooltip.classList.add('tooltip');
-    document.body.appendChild(tooltip);
-    
     const gridContainer = document.getElementById('circleGrid');
     const puzzleContainer = document.getElementById('puzzleContainer');
     const startButton = document.getElementById('startButton');
@@ -174,17 +169,6 @@ function initializeGrid() {
         const circle = document.createElement('div');
         circle.classList.add('circle');
         gridContainer.appendChild(circle);
-
-        circle.addEventListener('mouseenter', (event) => {
-            const currentColor = circle.style.backgroundColor;
-            if (currentColor && currentColor !== 'transparent') {
-                const shape = findShapeByColor(currentColor);
-                if (shape) {
-                    showTooltip(event, "circleGrid");
-                }
-            }
-        });
-        circle.addEventListener('mouseleave', hideTooltip);
     }
 }
 
@@ -194,7 +178,6 @@ function initializeShapes() {
 
     shapes.forEach(shape => {
         const shapeElement = createShape(shape);
-        showTooltip(shapeElement.id, 'Puzzle')
         puzzleContainer.appendChild(shapeElement);
     });
 }
@@ -246,9 +229,6 @@ function createShape(shape) {
             }, 300);
         }
     });
-
-    shapeDiv.addEventListener('mouseenter', (event) => showTooltip(event, null));
-    shapeDiv.addEventListener('mouseleave', hideTooltip);
 
     shapeDiv.addEventListener('dragstart', dragStart);
     shapeDiv.addEventListener('dragend', dragEnd);
@@ -538,28 +518,6 @@ function displayLastUsedShape(shapeData) {
     }
 }
 
-function findShapeByColor(color) {
-    return shapes.find(shape => hexToRgb(shape.color) === color);
-}
-
-function showTooltip(event, containerInfo) {
-    if(event){
-        if (containerInfo === "circleGrid"){
-            tooltip.textContent = `Click on the shape to remove it from the grid.`;
-        }
-        else{
-            tooltip.textContent = `Click on the Shape to Rotate and Double Click to Flip`;
-        }
-        tooltip.style.left = `${event.pageX + 10}px`;
-        tooltip.style.top = `${event.pageY + 10}px`;
-        tooltip.classList.add('active');
-    }
-}
-
-function hideTooltip() {
-    tooltip.classList.remove('active');
-}
-
 function checkGameEnd() {
     const gridCells = document.querySelectorAll('.circle');
 
@@ -577,4 +535,20 @@ function closeGameEndOverlay() {
     const gameEndOverlay = document.getElementById('gameEndOverlay');
     gameEndOverlay.style.display = 'none';
     startGame();
+}
+
+// Instruction Model
+function openInstructions() {
+    document.getElementById('instructionsModal').style.display = 'flex';
+}
+
+function closeInstructions() {
+    document.getElementById('instructionsModal').style.display = 'none';
+}
+
+window.onclick = function(event) {
+    var modal = document.getElementById('instructionsModal');
+    if (event.target == modal) {
+        closeInstructions();
+    }
 }

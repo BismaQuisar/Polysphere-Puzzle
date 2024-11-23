@@ -1,40 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Circle Grid</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Puzzle Games</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h1>Polysphere Puzzle</h1>
-    <div class="container">
-        <div class="controls">
-            <button id="startButton">Start</button>
-            <button id="resetButton">Reset</button>
-        </div>
-        
-        <div class="puzzle">
-            <div class="row">
-                <div class="grid-container" id="circleGrid"></div>
-                <div id="lastUsedContainer" class="previous_shape">
-                    <h2>Previous Shape</h2>
-                    <div id="lastUsedShapeDisplay"></div>
-                </div>
-            </div>
-            <div id="gameEndOverlay" class="game-end-overlay" style="display: none;">
-                <div class="game-end-message">
-                    <button class="close-button" onclick="closeGameEndOverlay()">X</button>
-                    <h2>Game Over</h2>
-                    <p>Congratulations! You've completed the puzzle!</p>
-                    <button id="New_Game" onclick="closeGameEndOverlay()">Replay</button>
-                </div>
-            </div>
-            <div class="puzzle-pieces" id="puzzleContainer"></div>
-        </div>
-        
-    </div>
+  <header class="navbar">
+    <h1>Puzzle Games</h1>
+  </header>
 
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  <main>
+    <section class="card-section">
+      <!-- N-Queen Problem -->
+      <div class="card" id="nqueen_card">
+      </div>
+
+      <!-- Polysphere Puzzle -->
+      <a href="{{ url_for('polysphere') }}" class="card-link">
+        <div class="card" id="polysphere_card">
+        </div>
+      </a>
+
+      <!-- Pyramid Puzzle (Level 5) -->
+      <div class="card" id="pyramid5_card">
+      </div>
+
+      <!-- Pyramid Puzzle (Level 9) -->
+      <div class="card" id="pyramid9_card">
+      </div>
+    </section>
+  </main>
 </body>
 </html>
