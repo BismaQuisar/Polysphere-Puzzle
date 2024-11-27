@@ -1,4 +1,8 @@
 body {
+    background: linear-gradient(145deg, #242424, #1a1a1a);
+    font-family: 'Roboto', sans-serif;
+    color: #f1e7d4;
+    padding: 10px 20px 20px 20px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -6,9 +10,38 @@ body {
     margin: 0; 
 }
 
+h1 {
+    color: #ffae42;
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 10px #ffae42;
+}
+
+#boardContainerButtons{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
 #board-container {
     display: grid;
     margin: 20px 0;
+    gap: 2px;
+    border: 3px solid #ffae42;
+    border-radius: 10px;
+    padding: 5px;
+    box-shadow: 0 0 15px #ffae42;
+}
+
+#board-size {
+    padding: 5px;
+    border: 1px solid #5c5c70;
+    border-radius: 5px;
+    background: #1a1a1a;
+    color: #fff;
+    width: 60px;
+    text-align: center;
 }
 
 .square {
@@ -18,20 +51,53 @@ body {
     line-height: 50px;
     font-size: 24px;
     cursor: pointer;
-    background-color: #f0f0f0;  
+    border: 1px solid #5c5c70;
 }
 
 button {
     margin: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(145deg, #ffae42, #c27d00);
+    color: #fff;
+    font-weight: bold;
+    font-size: 1em;
+    box-shadow: 0 5px 15px rgba(255, 174, 66, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(255, 174, 66, 0.5);
+    background: linear-gradient(145deg, #c27d00, #ffae42);
 }
 
 .refresh-icon {
-    font-size: 20px; 
-    cursor: pointer; 
-    margin-left: 10px; 
-    color: black; 
+    font-size: 24px;
+    cursor: pointer;
+    margin-left: 10px;
+    color: #ffae42;
+    transition: all 0.3s ease;
 }
 
 .refresh-icon:hover {
-    color: #333333;
+    transform: rotate(360deg);
+    color: #ffc978;
+}
+
+#solutions {
+    color: #f1e7d4;
+    font-size: 1em;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.dark {
+    background: linear-gradient(145deg, #242424, #1a1a1a);
+}
+
+.light {
+    background: linear-gradient(145deg, #8b6200, #ffae42);
 }

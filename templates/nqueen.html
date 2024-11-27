@@ -10,12 +10,17 @@
 <body>
     <h1>N-Queens Completion Problem</h1>
 
-    <div>
-        <label for="board-size">Board Size (N): </label>
-        <input type="number" id="board-size" value="8" min="4" max="20">
-        <button onclick="generateBoard()">Generate Board</button>
-        <button onclick="solveBoard()">Solve</button>
-        <i class="fas fa-sync refresh-icon" onclick="generateBoard()" title="Refresh"></i>
+    <div id="boardContainerButtons">
+        <div>
+            <button id="homeButton" onclick="location.href=`{{ url_for('home') }}`">Home</button>
+            <button onclick="solveBoard()">Solve</button>
+            <i class="fas fa-sync refresh-icon" onclick="generateBoard()" title="Refresh"></i>
+        </div>
+        <div>
+            <label for="board-size">Board Size (N): </label>
+            <input type="number" id="board-size" value="8" min="4" max="20">
+            <button onclick="generateBoard()">Generate Board</button>
+        </div>
     </div>
 
     <div id="board-container"></div>
@@ -23,6 +28,6 @@
     <div id="solutions"></div>
 
     <!-- Make sure the JavaScript file is loaded after the HTML content -->
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/nqueen.js') }}"></script>
 </body>
 </html>

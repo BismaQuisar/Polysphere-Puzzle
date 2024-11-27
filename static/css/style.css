@@ -57,21 +57,36 @@ body {
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 6px 20px #f8c202;;
 }
 
 #nqueen_card {
   background-image: url('../images/N-Queen_Puzzle.png');
 }
 
+#nqueen_card:hover {
+  box-shadow: 0 6px 20px #f8c202;
+}
+
 #polysphere_card {
   background-image: url('../images/Polysphere_Puzzle.png');
+}
+
+#polysphere_card:hover {
+  box-shadow: 0 6px 20px #0897F6;
 }
 
 #pyramid5_card {
   background-image: url('../images/Pyramid_Puzzle\ \(Level\ 5\).webp');
 }
 
+#pyramid5_card:hover {
+  box-shadow: 0 6px 20px #ff5ca2;
+}
+
 #pyramid9_card {
   background-image: url('../images/Pyramid_Puzzle\ \(Level\ 9\).webp');
+}
+
+#pyramid9_card:hover {
+  box-shadow: 0 6px 20px #00A1B3;
 }

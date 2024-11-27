@@ -1,11 +1,16 @@
 // JavaScript to create a 5x11 grid of circles
 let draggedShape = null;
 let clickTimeout = null;
+let solutions = [];
+let currentSolutionIndex = -1;
+let stopRequested = false;
 document.addEventListener('DOMContentLoaded', () => {
     const gridContainer = document.getElementById('circleGrid');
     const puzzleContainer = document.getElementById('puzzleContainer');
     const startButton = document.getElementById('startButton');
     const resetButton = document.getElementById('resetButton');
+    const solveButton = document.getElementById('solveButton');
+    const stopButton = document.getElementById('stopButton');
 
     gridContainer.addEventListener('dragover', dragOver);
     gridContainer.addEventListener('drop', dropInGrid);
@@ -13,6 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
     puzzleContainer.addEventListener('drop', dropInPuzzle);
     startButton.addEventListener('click', startGame);
     resetButton.addEventListener('click', resetGame);
+    solveButton.addEventListener('click', solvePuzzle);
+    solveButton.addEventListener('click', updateCSS);
+    stopButton.addEventListener('click', stopPuzzle);
 
     // Create 5x11 grid of circles
     initializeGrid();
@@ -201,8 +209,20 @@ function resetGame() {
         circle.style.backgroundColor = '';
     });
 
+    currentSolutionIndex = -1;
+    solutionControls.style.display = 'none';
+    totalSolutions.style.display = 'none';
+    solutionCount.textContent = '0 / 0';
+    totalSolutions.textContent = 'Total Solutions: 0';
+
     initializeShapes();
     displayLastUsedShape(null);
+    if (solveButton.textContent.trim() === 'Solving...') {
+        stopPuzzle();
+        solveButton.disabled = false;
+        solveButton.textContent = 'Solve';
+        solveButton.style.cursor = 'pointer';
+    }
 }
 
 function createShape(shape) {
@@ -551,4 +571,146 @@ window.onclick = function(event) {
     if (event.target == modal) {
         closeInstructions();
     }
+}
+
+// Function to handle showing solutions
+function showSolutions() {
+    const solutionControls = document.getElementById('solutionControls');
+    const gridContainer = document.getElementById('circleGrid');
+    const circles = Array.from(gridContainer.children);
+
+    if (!solutionControls.style.display || solutionControls.style.display === 'none') {
+        solutionControls.style.display = 'flex';
+    }
+
+    function updateDisplay(index) {
+        const currentSolution = solutions[index];
+        for (let i = 0; i < circles.length; i++) {
+            circles[i].style.backgroundColor = currentSolution[i] || '';
+        }
+
+        document.getElementById('solutionCount').textContent = `${index + 1} / ${solutions.length}`;
+        document.getElementById('prevButton').disabled = index === 0;
+        document.getElementById('nextButton').disabled = index === solutions.length - 1;
+    }
+
+    if (currentSolutionIndex === -1 && solutions.length > 0) {
+        currentSolutionIndex = 0;
+        updateDisplay(currentSolutionIndex);
+    }
+
+    document.getElementById('prevButton').onclick = () => {
+        if (currentSolutionIndex > 0) {
+            currentSolutionIndex--;
+            updateDisplay(currentSolutionIndex);
+        }
+    };
+
+    document.getElementById('nextButton').onclick = () => {
+        if (currentSolutionIndex < solutions.length - 1) {
+            currentSolutionIndex++;
+            updateDisplay(currentSolutionIndex);
+        }
+    };
+
+    updateDisplay(currentSolutionIndex);
+
+}
+
+function streamSolutions() {
+    const eventSource = new EventSource('/stream_solutions');
+
+    eventSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+
+        if (data.done || stopRequested) {
+            console.log('All solutions have been received.');
+            eventSource.close();
+            return;
+        }
+
+        solutions.push(data);
+        console.log('New unique solution received:', data);
+        document.getElementById('totalSolutions').textContent = `Total Solutions: ${solutions.length}`;
+
+        showSolutions();
+    };
+
+    eventSource.onerror = () => {
+        console.error('Error receiving solutions.');
+        eventSource.close();
+    };
+}
+
+// Function to start solving the puzzle
+async function solvePuzzle() {
+    console.log("Puzzle solving started...");
+    solutions = [];
+    currentSolutionIndex = -1;
+    stopRequested = false;
+
+    const gridContainer = document.getElementById('circleGrid');
+    const circles = Array.from(gridContainer.children);
+    const puzzleContainer = document.getElementById('puzzleContainer');
+    
+    const grid = circles.map(circle => circle.style.backgroundColor || '');
+
+    const remainingShapes = [];
+    Array.from(puzzleContainer.children).forEach(shapeElement => {
+        const shapeData = shapes.find(shape => shape.id === shapeElement.id);
+        if (shapeData) {
+            remainingShapes.push({
+                ...shapeData,
+                pattern: getTransformedPattern(shapeData)
+            });
+        }
+    });
+
+    try {
+        const response = await fetch('/solve_puzzle', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                grid: grid,
+                remaining_shapes: remainingShapes
+            })
+        });
+
+        streamSolutions();
+    } catch (error) {
+        console.error('Error solving puzzle:', error);
+        alert('Error solving puzzle. Please try again.');
+    }
+}
+
+function updateCSS(){
+    totalSolutions.style.display = 'flex';
+    solutionControls.style.display = 'flex';
+    const solveButton = document.getElementById('solveButton');
+    solveButton.disabled = true;
+    solveButton.textContent = 'Solving...';
+    solveButton.style.cursor = 'not-allowed'; 
+}
+
+function stopPuzzle(){
+    console.log("Stopping puzzle solving...");
+    stopRequested = true;
+
+    fetch('/stop_puzzle', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Backend stopped:', data);
+            SolutionCompletedCSS();
+        })
+        .catch(error => {
+            console.error('Error stopping puzzle:', error);
+        });
+}
+
+function SolutionCompletedCSS(){
+    solveButton.disabled = false;
+    solveButton.textContent = 'Solve';
+    solveButton.style.cursor = 'pointer';
 }
