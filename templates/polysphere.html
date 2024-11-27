@@ -21,7 +21,7 @@
                 <button id="startButton">Start</button>
                 <button id="resetButton">Reset</button>
                 <button id="solveButton">Solve</button>
-                <button id="instructionsButton" onclick="openInstructions()">How It Works</button>
+                <button id="instructionsButton" onclick="openInstructions()">How To Play</button>
             </aside>
             <section class="puzzle">
                 <div class="row">
@@ -40,6 +40,14 @@
                         <button id="homeButton" class="buttons" onclick="location.href=`{{ url_for('home') }}`">Home</button>
                     </div>
                 </div>
+                <div id="totalSolutions" style="margin-top: 10px; display: none;">Total Solutions: 0</div>
+                <div id="solutionControls" style="display: none;">
+                    <button id="prevButton" disabled>&lt;</button>
+                    <div id="solutionCount" >0 / 0</div>
+                    <button id="nextButton" disabled>&gt;</button>
+                    <button id="stopButton">Stop</button>
+                </div>
+
             </section>
         </div>
     </main>
