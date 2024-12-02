@@ -101,3 +101,41 @@ button:hover {
 .light {
     background: linear-gradient(145deg, #8b6200, #ffae42);
 }
+
+/* Solution CSS */
+#solutionControls {
+    display: none;
+    display: flex;
+    width: 28%;
+    gap: 15px;
+    background-color: #2e2e2e;
+    padding: 10px 20px;
+    margin-top: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.4);
+    justify-content: center;
+    align-items: center;
+   
+}
+
+#solutionControls button {
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    color: #ffffff;
+}
+
+#solutionControls button:disabled {
+    color: #999999;
+    cursor: not-allowed;
+}
+
+#solutionCount {
+    margin: auto 0;
+    font-weight: bold;
+    color: #ffffff;
+    font-size: 16px;
+}

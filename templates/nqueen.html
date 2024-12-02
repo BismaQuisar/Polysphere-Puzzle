@@ -14,7 +14,7 @@
         <div>
             <button id="homeButton" onclick="location.href=`{{ url_for('home') }}`">Home</button>
             <button onclick="solveBoard()">Solve</button>
-            <i class="fas fa-sync refresh-icon" onclick="generateBoard()" title="Refresh"></i>
+            <i class="fas fa-sync refresh-icon" onclick="resetGame()" title="Refresh"></i>
         </div>
         <div>
             <label for="board-size">Board Size (N): </label>
@@ -25,7 +25,12 @@
 
     <div id="board-container"></div>
 
-    <div id="solutions"></div>
+    <div id="totalSolutions" style="margin-top: 10px; display: none;">Total Solutions: 0</div>
+    <div id="solutionControls" style="display: none;">
+        <button id="prevButton" disabled>&lt;</button>
+        <div id="solutionCount" >0 / 0</div>
+        <button id="nextButton" disabled>&gt;</button>
+    </div>
 
     <!-- Make sure the JavaScript file is loaded after the HTML content -->
     <script src="{{ url_for('static', filename='js/nqueen.js') }}"></script>
