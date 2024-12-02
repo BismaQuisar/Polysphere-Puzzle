@@ -102,8 +102,7 @@ button:hover {
     background: linear-gradient(145deg, #8b6200, #ffae42);
 }
 
-
-
+/* Solution CSS */
 #solutionControls {
     display: none;
     display: flex;

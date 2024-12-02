@@ -58,14 +58,10 @@ function toggleQueen(event) {
 }
 
 function solveBoard() {
-    const squares = getSquares();
-    for (let row = 0; row < n; row++) {
-        for (let col = 0; col < n; col++) {
-            const squareIndex = row * n + col;
-            const currentSquare = squares[squareIndex];
-            currentSquare.onclick = '';
-        }
-    }
+    getSquares().forEach(square => {
+        square.onclick = null;
+    });
+    
     fetch('/solve', {
         method: 'POST',
         headers: {
@@ -103,8 +99,6 @@ function displaySolutions(solutions, n) {
 
                 currentSquare.textContent = cell === 'Q' ? '♕' : '';
                 square.onclick = null;
-                //square.classList.add("unclickable");
-                //square.target.style.pointerEvents = 'none';
             });
         });
         
