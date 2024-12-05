@@ -1,6 +1,6 @@
 from flask import Flask, render_template, Response, jsonify, request
-import copy
 import json
+from itertools import product
 
 # Set custom template and static folder paths
 app = Flask(__name__, template_folder="templates", static_folder="static")
@@ -53,140 +53,159 @@ def solve():
 
 # Puzzle Solving Functions
 
-def is_valid_placement(grid, shape, row, col):
-    rows, cols = 5, 11
-    pattern = shape['pattern']
-    shape_rows = len(pattern)
-    shape_cols = len(pattern[0])
+def reshape_to_2d(flattened_grid, rows, cols):
+    if len(flattened_grid) != rows * cols:
+        raise ValueError("Grid size does not match the specified dimensions.") # 1D to 2D
     
-    if row + shape_rows > rows or col + shape_cols > cols:
-        return False
-        
-    for r in range(shape_rows):
-        for c in range(shape_cols):
-            if pattern[r][c] == 1:
-                grid_pos = (row + r) * cols + (col + c)
-                if grid_pos >= len(grid) or grid[grid_pos] != '':
-                    return False
-    return True
+    return [flattened_grid[i * cols:(i + 1) * cols] for i in range(rows)]
 
-def place_shape(grid, shape, row, col):
-    cols = 11
-    pattern = shape['pattern']
-    for r in range(len(pattern)):
-        for c in range(len(pattern[0])):
-            if pattern[r][c] == 1:
-                grid_pos = (row + r) * cols + (col + c)
-                grid[grid_pos] = shape['color']
+def flatten_grid(grid):
+    return [cell for row in grid for cell in row] # 2D to 1D
 
-def remove_shape(grid, shape, row, col):
-    cols = 11
-    pattern = shape['pattern']
-    for r in range(len(pattern)):
-        for c in range(len(pattern[0])):
-            if pattern[r][c] == 1:
-                grid_pos = (row + r) * cols + (col + c)
-                grid[grid_pos] = ''
+def generate_orientations(pattern):
+    orientations = set()
+    for _ in range(4):
+        pattern = rotate_pattern(pattern)
+        orientations.add(tuple(map(tuple, pattern)))
+        orientations.add(tuple(map(tuple, flip_pattern_horizontal(pattern))))
+        orientations.add(tuple(map(tuple, flip_pattern_vertical(pattern))))
+    return [list(map(list, orientation)) for orientation in orientations]
 
 def rotate_pattern(pattern):
-    rows = len(pattern)
-    cols = len(pattern[0])
-    new_pattern = [[0 for _ in range(rows)] for _ in range(cols)]
-    for r in range(rows):
-        for c in range(cols):
-            new_pattern[c][rows - 1 - r] = pattern[r][c]
-    return new_pattern
+    return [[pattern[len(pattern) - 1 - r][c] for r in range(len(pattern))] for c in range(len(pattern[0]))] #90 degree clockwise
 
 def flip_pattern_horizontal(pattern):
-    return [row[::-1] for row in pattern]
+    return [row[::-1] for row in pattern] #Horizontally
 
 def flip_pattern_vertical(pattern):
-    return pattern[::-1]
+    return pattern[::-1] #Vertically
 
-def solve_polysphere(grid, shapes):
+def preprocess_shape_positions(grid_state, shapes_state):
+    precomputed_positions = []
+    for shape in shapes_state:
+        valid_positions = []
+        for orientation in shape['orientations']:
+            valid_positions_for_orientation = []
+            for row in range(len(grid_state) - len(orientation) + 1):
+                for col in range(len(grid_state[0]) - len(orientation[0]) + 1):
+                    if is_valid_placement(grid_state, orientation, row, col):
+                        valid_positions_for_orientation.append((row, col))
+            valid_positions.append({'orientation': orientation, 'positions': valid_positions_for_orientation})
+        precomputed_positions.append(valid_positions)
+    return precomputed_positions
+
+def is_valid_placement(grid, pattern, row, col):
+    grid_rows, grid_cols = len(grid), len(grid[0])
+    pattern_rows, pattern_cols = len(pattern), len(pattern[0])
+
+    if row + pattern_rows > grid_rows or col + pattern_cols > grid_cols:
+        return False
+
+    for r in range(pattern_rows):
+        for c in range(pattern_cols):
+            if pattern[r][c] == 1 and grid[row + r][col + c] != '':
+                return False
+
+    return True
+
+def place_pattern(grid, pattern, row, col, color):
+    for r, c in product(range(len(pattern)), range(len(pattern[0]))):
+        if pattern[r][c] == 1:
+            grid[row + r][col + c] = color
+
+def remove_pattern(grid, pattern, row, col):
+    for r, c in product(range(len(pattern)), range(len(pattern[0]))):
+        if pattern[r][c] == 1:
+            grid[row + r][col + c] = ''
+
+def solve_polysphere(grid, precomputed_positions, shape_index=0, filled_cells=0, total_cells=0):
     global stop_solving
     if stop_solving:
         return
     
-    if not shapes:
-        if all(cell != '' for cell in grid):
-            solution_copy = grid[:]
-            yield solution_copy
-            
+    if filled_cells == total_cells:  # If all cells are filled, yield the first solution immediately
+        yield flatten_grid(grid)
         return
 
-    current_shape = shapes[0]
-    original_pattern = copy.deepcopy(current_shape['pattern'])
+    if shape_index >= len(precomputed_positions):  # If no more shapes left to place, stop recursion
+        return
 
-    for flip_h in [False, True]:
-        pattern = original_pattern
-        if flip_h:
-            pattern = flip_pattern_horizontal(pattern)
+    current_shape_positions = precomputed_positions[shape_index]
 
-        for flip_v in [False, True]:
-            if flip_v:
-                pattern = flip_pattern_vertical(pattern)
+    for position_data in current_shape_positions:
+        orientation = position_data['orientation']
+        for row, col in position_data['positions']:
+            if is_valid_placement(grid, orientation, row, col):
+                place_pattern(grid, orientation, row, col, color=f"S{shape_index}")
+                new_filled_cells = filled_cells + sum(row.count(1) for row in orientation)
+                yield from solve_polysphere(grid, precomputed_positions, shape_index + 1, new_filled_cells, total_cells)
+                remove_pattern(grid, orientation, row, col)
 
-            for _ in range(4):
-                current_shape['pattern'] = pattern
-
-                for row in range(5):
-                    for col in range(11):
-                        if is_valid_placement(grid, current_shape, row, col):
-                            place_shape(grid, current_shape, row, col)
-
-                            yield from solve_polysphere(grid, shapes[1:])
-
-                            remove_shape(grid, current_shape, row, col)
-
-                pattern = rotate_pattern(pattern)
-
-            if flip_v:
-                pattern = flip_pattern_vertical(pattern)
-
-        if flip_h:
-            pattern = flip_pattern_horizontal(pattern)
-
-    current_shape['pattern'] = original_pattern
+def fitability_metric(grid, shape):
+    """Calculate the number of valid placements for a shape in the current grid state."""
+    valid_count = 0
+    for orientation in shape['orientations']:
+        pattern_rows, pattern_cols = len(orientation), len(orientation[0])
+        for row in range(len(grid) - pattern_rows + 1):
+            for col in range(len(grid[0]) - pattern_cols + 1):
+                if is_valid_placement(grid, orientation, row, col):
+                    valid_count += 1
+    return valid_count
 
 @app.route('/solve_puzzle', methods=['POST'])
 def solve_puzzle():
-    global stop_solving
+    global grid_state, shapes_state, precomputed_positions, stop_solving
     stop_solving = False 
     data = request.json
-    grid = data['grid']
-    remaining_shapes = data['remaining_shapes']
+    flattened_grid = data['grid']
+    rows, cols = data.get('rows', 5), data.get('cols', 11)
 
-    global grid_state, shapes_state
-    grid_state = grid
-    shapes_state = remaining_shapes
+    try:
+        grid_state = reshape_to_2d(flattened_grid, rows, cols)
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
 
+    shapes_state = data['remaining_shapes']
+    for shape in shapes_state:
+        shape['orientations'] = generate_orientations(shape['pattern'])
+
+    if all(cell == '' for row in grid_state for cell in row):
+       shapes_state.sort(key=lambda shape: sum(row.count(1) for row in shape['pattern']), reverse=True)
+    else:
+        shapes_state.sort(key=lambda shape: fitability_metric(grid_state, shape))
+
+    precomputed_positions = preprocess_shape_positions(grid_state, shapes_state)
     return jsonify({'message': 'Puzzle solving started. Solutions will be streamed.'})
-
 
 @app.route('/stream_solutions', methods=['GET'])
 def stream_solutions():
     unique_solutions = set()
+    total_cells = sum(1 for row in grid_state for cell in row if cell == '')
+    shape_color_map = {f"S{i}": shape['color'] for i, shape in enumerate(shapes_state)}
 
     def generate_solutions():
-        for solution in solve_polysphere(grid_state, shapes_state):
+        # Generate solutions
+        for solution in solve_polysphere(grid_state, precomputed_positions, 0, 0, total_cells):
             solution_tuple = tuple(solution)
             if stop_solving:
                 break 
 
             if solution_tuple not in unique_solutions:
                 unique_solutions.add(solution_tuple)
-                yield f"data: {json.dumps(solution)}\n\n"
+                color_solution = [
+                    shape_color_map[cell] if cell in shape_color_map else cell
+                    for cell in solution
+                ]
 
-        # Send done to show completion
+                yield f"data: {json.dumps(color_solution)}\n\n"
+
         yield "data: {\"done\": true}\n\n"
-
     return Response(generate_solutions(), content_type='text/event-stream')
 
 @app.route('/stop_puzzle', methods=['POST'])
 def stop_puzzle():
     global stop_solving
-    stop_solving = True  # Set flag to stop solving
+    stop_solving = True
     return jsonify({'message': 'Puzzle solving stopped.'})
 
 if __name__ == '__main__':

@@ -193,12 +193,13 @@ function initializeShapes() {
 function startGame() {
     resetGame();
 
-    // Assigning the shapes Random Position
-    const puzzleContainer = document.getElementById('puzzleContainer');
-    initializeShapes()
-    Array.from(puzzleContainer.children).forEach(shape => {
-        shape.style.order = Math.floor(Math.random() * puzzleContainer.children.length);
+    shapes.forEach(shape => {
+        shape.flippedHorizontally = false;
+        shape.flippedVertically = false;
+        shape.angle = 0;
     });
+
+    initializeShapes();
 }
 
 function resetGame() {
@@ -214,6 +215,7 @@ function resetGame() {
     totalSolutions.style.display = 'none';
     solutionCount.textContent = '0 / 0';
     totalSolutions.textContent = 'Total Solutions: 0';
+    stopButton.style.display = 'flex';
 
     initializeShapes();
     displayLastUsedShape(null);
@@ -713,4 +715,5 @@ function SolutionCompletedCSS(){
     solveButton.disabled = false;
     solveButton.textContent = 'Solve';
     solveButton.style.cursor = 'pointer';
+    stopButton.style.display = 'none';
 }

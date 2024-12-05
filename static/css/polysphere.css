@@ -331,6 +331,10 @@ ul li {
     cursor: not-allowed;
 }
 
+#prevButton, #nextButton{
+    background-color: rgb(69, 68, 68);
+}
+
 #solutionCount {
     margin: auto 0;
     font-weight: bold;
