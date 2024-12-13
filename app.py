@@ -25,6 +25,10 @@ def nqueen():
 def pyramid5():
     return render_template('pyramid5.html')
 
+@app.route('/pyramid9')
+def pyramid9():
+    return render_template('pyramid9.html')
+
 # N-Queen Solving Functions
 
 def is_safe(board, row, col, n):
