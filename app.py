@@ -1,11 +1,13 @@
 from flask import Flask, render_template, Response, jsonify, request
 import json
+import itertools
 from itertools import product
+import pprint
 
 # Set custom template and static folder paths
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
-stop_solving = False
+# stop_solving = False
 
 @app.route('/')
 def home():
@@ -18,6 +20,10 @@ def polysphere():
 @app.route('/nqueen')
 def nqueen():
     return render_template('nqueen.html')
+
+@app.route('/pyramid5')
+def pyramid5():
+    return render_template('pyramid5.html')
 
 # N-Queen Solving Functions
 
@@ -207,6 +213,31 @@ def stop_puzzle():
     global stop_solving
     stop_solving = True
     return jsonify({'message': 'Puzzle solving stopped.'})
+
+@app.route('/solve_pyramid', methods=['POST'])
+def solve_pyramid():
+    global grid_state, shapes_state, precomputed_positions, stop_solving
+    stop_solving = False 
+    data = request.json
+    flattened_grid = data['grid']
+    rows, cols = data.get('rows', 5), data.get('cols', 11)
+
+    try:
+        grid_state = reshape_to_2d(flattened_grid, rows, cols)
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+
+    shapes_state = data['remaining_shapes']
+    for shape in shapes_state:
+        shape['orientations'] = generate_orientations(shape['pattern'])
+
+    if all(cell == '' for row in grid_state for cell in row):
+       shapes_state.sort(key=lambda shape: sum(row.count(1) for row in shape['pattern']), reverse=True)
+    else:
+        shapes_state.sort(key=lambda shape: fitability_metric(grid_state, shape))
+
+    precomputed_positions = preprocess_shape_positions(grid_state, shapes_state)
+    return jsonify({'message': 'Puzzle solving started. Solutions will be streamed.'})
 
 if __name__ == '__main__':
     app.run(debug=True)

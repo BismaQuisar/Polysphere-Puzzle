@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polysphere Puzzle</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pyramid5.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.110.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+
+    <header>
+        <h1>Pyramid Puzzle (Level 5)</h1>
+    </header>
+    <main>
+        <div class="controls">
+            <button id="homeButton" onclick="location.href=`{{ url_for('home') }}`">Home</button>
+            <button id="resetButton" onclick="resetGame()">Reset</button>
+            <button id="solveButton" onclick="solvePyramid()">Solve</button> 
+        </div>
+        
+        <div class="container">
+            <aside class="pieces">
+                <div class="puzzle-pieces" id="puzzleContainer"></div>
+            </aside>
+            <section class="puzzle">
+                <div class="row">
+                    <div class="grid-container" id="circleGrid">
+                        <div id="pyramid-container"></div>
+                    </div>
+                    <div id="shapeDisplayContainer" class="shape_display">
+                        <h2>Shape Display</h2>
+                        <div id="ShapeDisplay"></div>
+                    </div>
+                </div>
+                <div id="totalSolutions" style="margin-top: 10px; display: none;">Total Solutions: 0</div>
+                <div id="solutionControls" style="display: none;">
+                    <button id="prevButton" disabled>&lt;</button>
+                    <div id="solutionCount" >0 / 0</div>
+                    <button id="nextButton" disabled>&gt;</button>
+                    <button id="stopButton">Stop</button>
+                </div>
+
+            </section>
+        </div>
+    </main>
+    <script src="{{ url_for('static', filename='js/pyramid5.js') }}"></script>
+</body>
+</html>
+
