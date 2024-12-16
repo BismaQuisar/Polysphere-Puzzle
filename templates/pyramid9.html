@@ -19,6 +19,9 @@
             <button id="homeButton" onclick="location.href=`{{ url_for('home') }}`">Home</button>
             <button id="resetButton" onclick="resetGame()">Reset</button>
             <button id="solveButton" onclick="solvePyramid()">Solve</button> 
+            <button id ="normalView" onclick="setPyramidView('normal')">Normal View</button>
+            <button id ="verticalView" onclick="setPyramidView('top')">Vertical View</button>
+            <button id ="horizontalView" onclick="setPyramidView('side')">Horizontal View</button>
         </div>
         
         <div class="container">
@@ -30,16 +33,19 @@
                     <div class="grid-container" id="circleGrid">
                         <div id="pyramid-container"></div>
                     </div>
-                    <div id="shapeDisplayContainer" class="shape_display">
-                        <h2>Shape Display</h2>
-                        <div id="ShapeDisplay"></div>
-                    </div>
+                </div>
+                <div id="solutionControls" style="display: none;">
+                    <button id="prevButton" disabled>&lt;</button>
+                    <div id="solutionCount" >0 / 0</div>
+                    <button id="nextButton" disabled>&gt;</button>
+                    <button id="stopButton">Stop</button>
                 </div>
 
             </section>
         </div>
     </main>
     <script src="{{ url_for('static', filename='js/pyramid9.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/pyramid_solution.js') }}"></script>
 </body>
 </html>
 
